@@ -1,2 +1,6 @@
 # Flight-Delay-Prediction
+The aviation industry now plays a critical role in the global transportation sector, with many enterprises relying on various airlines to connect them to other regions of the globe. Due to many can have a direct impact on airline services by causing flight delays. Bad weather, seasonal and holiday demands, airline policies, technical issues such as problems in airport facilities, luggage handling, and mechanical gear, and the accumulation of delays from previous flights can all cause delays in departure. 
+
+The original source of the dataset was from a reliable government agency website that offers statistics on air traffic delays in the United States. The Bureau of Transportation Statistics (BTS) of the United States Department of Transportation (DOT) monitors the on-time performance of domestic flights operated by significant airlines. BTS compiles daily statistics for the benefit of customers or for any other data analysts that may require the necessary information. However, the dataset is available in Kaggle repositories and has been retrieved from the website. The dataset compiles the number flight delays and cancellations in 2015.
+
 The goal is to use exploratory analysis and to build machine learning models to predict the flight delay
