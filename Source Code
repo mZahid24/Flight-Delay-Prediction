@@ -1,0 +1,83 @@
+import pandas as pd
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import roc_auc_score
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import metrics
+
+from google.colab import files
+data_to_load = files.upload()
+import warnings
+import io
+df = pd.read_csv(io.BytesIO(data_to_load['flightDataset.csv']))
+df = df[0:150000]
+df.shape
+df.info()
+sns.jointplot(data=df, x="SCHEDULED_ARRIVAL", y="ARRIVAL_TIME")
+df.corr()
+df[df.columns[1:]].corr()['ARRIVAL_DELAY'][:].sort_values(ascending=False)
+df=df.drop(['YEAR','FLIGHT_NUMBER','AIRLINE','DISTANCE','TAIL_NUMBER','TAXI_OUT', 'SCHEDULED_TIME','DEPARTURE_TIME','WHEELS_OFF','ELAPSED_TIME', 'AIR_TIME','WHEELS_ON','DAY_OF_WEEK','TAXI_IN','CANCELLATION_REASON'], axis=1)
+df.shape
+df.isna().sum()
+df=df.fillna(df.mean())
+df.isna().sum()
+sns.heatmap(df.corr(), annot=True, cmap="PuBuGn" ,fmt='g')
+result=[]
+for row in df['ARRIVAL_DELAY']:
+    if row > 15:
+        result.append(1)
+    else:
+        result.append(0) 
+df['result'] = result
+df.head()
+df['result'].value_counts()
+df=df.drop(['ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'ARRIVAL_TIME', 'ARRIVAL_DELAY'],axis=1)
+df.columns
+
+df = df.values
+X, y = df[:,:-1], df[:,-1]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
+
+scaled_features = StandardScaler().fit_transform(X_train, X_test)
+
+clf = DecisionTreeClassifier()
+clf = clf.fit(X_train,y_train)
+
+pred = clf.predict_proba(X_test)
+
+auc_score = roc_auc_score(y_test, pred[:,1])
+auc_score
+
+print('AUC Score of Model is: {} %'.format(round(auc_score*100,2)))
+
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+result1 = confusion_matrix(y_test, pred[:,1])
+print("Confusion Matrix:")
+print(result1)
+print('')
+result2 = classification_report(y_test, pred[:,1])
+print("Classification Report:",)
+print (result2)
+result3 = accuracy_score(y_test,pred[:,1])
+print("Accuracy:",result3)
+
+class_names=[0,1]
+fig,ax=plt.subplots()
+tick_marks = np.arange(len(class_names))
+plt.xticks(tick_marks, class_names)
+plt.yticks(tick_marks, class_names)
+sns.heatmap(pd.DataFrame(result1), annot=True, cmap="PuBuGn" ,fmt='g')## visualized confusion matrix using heatmap
+ax.xaxis.set_label_position("top")
+plt.tight_layout()
+plt.title('Confusion matrix', y=1.1)
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+
+print("Accuracy Achieved:",round(metrics.accuracy_score(y_test, pred[:,1])*100,2),'%')
+print(' ')
+print("Precision Achieved:",round(metrics.precision_score(y_test, pred[:,1])*100,2),'%')
+print(' ')
+print("Recall Achieved:",round(metrics.recall_score(y_test, pred[:,1])*100,2),'%')
